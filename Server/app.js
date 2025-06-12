@@ -10,18 +10,19 @@ const cors = require('cors');
 const app = express();
 
 app.get("/", (req, res) => {
-  res.json({
-    message: "MediEase API is live",
-    routes: {
-      register: "/api/auth/register",
-      login: "/api/auth/login",
-      updateProfile: "/api/user/profile/update/:id",
-      fetchServices: "/api/services",
-      swagger:"/api-docs"
-      // ...add more routes you expose
-    }
-  });
+  res.send(`
+    <h1>MediEase API is live</h1>
+    <p>Available routes:</p>
+    <ul>
+      <li><a href="/api/auth/register" target="_blank">Register</a></li>
+      <li><a href="/api/auth/login" target="_blank">Login</a></li>
+      <li><a href="/api/user/profile/update/123" target="_blank">Update Profile (example)</a></li>
+      <li><a href="/api/services" target="_blank">Fetch Services</a></li>
+      <li><a href="/api-docs" target="_blank">Swagger Docs</a></li>
+    </ul>
+  `);
 });
+
 
 
 
