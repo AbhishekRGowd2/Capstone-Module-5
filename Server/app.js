@@ -9,6 +9,22 @@ const cors = require('cors');
 
 const app = express();
 
+app.get("/", (req, res) => {
+  res.json({
+    message: "MediEase API is live",
+    routes: {
+      register: "/api/auth/register",
+      login: "/api/auth/login",
+      updateProfile: "/api/user/profile/update/:id",
+      fetchServices: "/api/services",
+      swagger:"/api-docs"
+      // ...add more routes you expose
+    }
+  });
+});
+
+
+
 app.use(cors({
     origin: ['http://localhost:4000','https://mediease-dxbmqvaah-abhishek-r-gowdas-projects.vercel.app'],
     credentials: true,
