@@ -10,7 +10,7 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:4000',
+    origin: ['http://localhost:4000','https://mediease-dbunft71p-abhishek-r-gowdas-projects.vercel.app/'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
