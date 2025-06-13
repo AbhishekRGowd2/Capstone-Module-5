@@ -7,13 +7,14 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { logout } from '../Redux/authSlice'; // Adjust path if needed
 import { useNavigate } from 'react-router-dom';
+import profileService from '../services/profileServices';
 
 
 const Layout = () => {
   //const user = JSON.parse(localStorage.getItem("user"));
   const user = useSelector(state => state?.auth.user);
   console.log("User from redux : ", user);
-  console.log(user?.name);
+  console.log(user?.user?.name);
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
@@ -23,30 +24,48 @@ const Layout = () => {
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const isActive = (path) => location.pathname === path;
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
+    window.addEventListener('resize', handleResize);
+
+    // Set initial state on mount
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
+
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/profile', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
-        });
+        const token = localStorage.getItem('token');
+        const res = await profileService.getProfile(token);
         console.log("Profile data : ", res.data);
         setProfile(res.data);
         setProfilePic(res.data?.profilePic || null);
+        console.log("state data", profile, profilePic);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       }
     };
 
-    console.log("Profile pic : ", profile?.profilePic);
-
     if (user) {
       fetchProfile();
     }
   }, [user]);
+
+  useEffect(() => {
+    console.log("Updated profilePic:", profilePic);
+    console.log("Pic url:", `${BASE_URL}/uploads/profile-pics/${profilePic}`);
+  }, [profilePic]);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -70,12 +89,7 @@ const Layout = () => {
     formData.append('profilePic', selectedImage);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/profile', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      });
+      const res = await profileService.updateProfile(formData, localStorage.getItem('token'));
 
       setProfilePic(res.data.profilePic);
       setShowEdit(false);
@@ -86,17 +100,28 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    // <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
       {/* Navbar */}
       <div className="bg-[#6a1b9a] flex justify-between items-center p-4 text-white relative z-10">
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             onClick={toggleSidebar}
             className="text-white"
             aria-label="Toggle sidebar menu"
           >
             <Menu size={28} />
-          </button>
+          </button> */}
+          {isMobile && (
+            <button
+              onClick={toggleSidebar}
+              className="text-white"
+              aria-label="Toggle sidebar menu"
+            >
+              <Menu size={28} />
+            </button>
+          )}
+
 
           <div className="text-xl font-semibold">Patient System</div>
         </div>
@@ -110,11 +135,12 @@ const Layout = () => {
 
       <div className="flex flex-1">
         {/* Sidebar */}
-        <div className={`bg-gray-100 p-4 space-y-16 w-64 transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden'}`}>
+        {/* <div className={`bg-gray-100 p-4 space-y-16 w-64 transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden'}`}> */}
+        <div className={`bg-gray-100 p-4 space-y-16 w-64 transition-all duration-300 ${isMobile ? (sidebarOpen ? 'block' : 'hidden') : 'block'}`}>
           <div className="text-center relative group">
             <div className="relative w-24 h-24 mx-auto">
               <img
-                src={profilePic ? `http://localhost:5000/uploads/profile-pics/${profilePic}` : 'https://via.placeholder.com/100'}
+                src={profilePic ? `${BASE_URL}/uploads/profile-pics/${profilePic}` : 'https://via.placeholder.com/100'}
                 alt="Profile"
                 className="rounded-full w-24 h-24 object-cover border-2 border-[#6a1b9a]"
               />
@@ -159,8 +185,8 @@ const Layout = () => {
             )}
 
 
-            <div className="font-bold mt-2">{user?.name}</div>
-            <div className="text-sm text-gray-600">{user?.email}</div>
+            <div className="font-bold mt-2">{user?.user?.name || user?.name}</div>
+            <div className="text-sm text-gray-600">{user?.user?.email || user?.email}</div>
 
             {/* <div className="font-bold mt-2">
               {profile?.firstName && profile?.lastName
@@ -189,6 +215,22 @@ const Layout = () => {
             >
               Profile Settings
             </Link>
+
+            {isMobile && (
+              <div className="space-y-2">
+                <Link to="/get-services" className="block p-2 bg-purple-200 rounded text-center">
+                  Services
+                </Link>
+                <Link to="/book-appointment" className="block p-2 bg-purple-200 rounded text-center">
+                  Book Appointment
+                </Link>
+                <Link to="/get-appointment" className="block p-2 bg-purple-200 rounded text-center">
+                  My Appointments
+                </Link>
+              </div>
+            )}
+
+
             <button
               onClick={handleLogout}
               className="block p-2 bg-red-500 rounded w-full text-center text-white"
