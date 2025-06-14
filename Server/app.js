@@ -10,7 +10,7 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-    origin: [['http://localhost:4000','https://mediease-a76h4vb6a-abhishek-r-gowdas-projects.vercel.app']],
+    origin: [['http://localhost:4000','https://mediease-3vik7f6p4-abhishek-r-gowdas-projects.vercel.app']],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
