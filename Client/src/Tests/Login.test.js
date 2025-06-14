@@ -1,48 +1,62 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import Login from '../pages/Login';
-import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
+import authService from '../services/authServices';
 
-jest.mock('axios');
+// Mock Redux dispatch
 jest.mock('react-redux', () => ({
-  useDispatch: jest.fn(),
+  useDispatch: jest.fn()
 }));
-jest.mock('react-router-dom', () => ({
-  useNavigate: jest.fn(),
-}));
+
+// Mock authService
+jest.mock('../services/authServices');
+
+const mockDispatch = jest.fn();
+
+const renderWithRouter = (ui) => {
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
+};
 
 describe('Login', () => {
-  test('submits login form and calls axios.post', async () => {
-    const mockDispatch = jest.fn();
-    const mockNavigate = jest.fn();
+  beforeEach(() => {
     useDispatch.mockReturnValue(mockDispatch);
-    useNavigate.mockReturnValue(mockNavigate);
+    jest.spyOn(Storage.prototype, 'setItem'); // mock localStorage.setItem
+    jest.clearAllMocks();
+  });
 
-    axios.post.mockResolvedValueOnce({
+  test('submits login form and calls authService.login', async () => {
+    const mockResponse = {
       data: {
         user: { id: 1, email: 'test@example.com' },
         token: 'fake-token'
       }
-    });
+    };
 
-    render(<Login />);
+    authService.login.mockResolvedValue(mockResponse);
 
-    fireEvent.change(screen.getByPlaceholderText(/email/i), {
+    renderWithRouter(<Login />);
+
+    fireEvent.change(screen.getByPlaceholderText('Email'), {
       target: { value: 'test@example.com' }
     });
-    fireEvent.change(screen.getByPlaceholderText(/password/i), {
+
+    fireEvent.change(screen.getByPlaceholderText('Password'), {
       target: { value: 'password123' }
     });
 
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^login$/i })); // ✅ safer and specific
 
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith(
-        'http://localhost:5000/auth/login',
-        { email: 'test@example.com', password: 'password123' }
-      );
+      expect(authService.login).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123'
+      });
+
+      expect(mockDispatch).toHaveBeenCalled();
+      expect(localStorage.setItem).toHaveBeenCalledWith('user', JSON.stringify(mockResponse.data.user));
+      expect(localStorage.setItem).toHaveBeenCalledWith('token', mockResponse.data.token);
     });
   });
 });

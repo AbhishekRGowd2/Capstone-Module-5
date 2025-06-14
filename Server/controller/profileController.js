@@ -25,9 +25,15 @@ const createOrUpdateProfile = async (req, res) => {
     address1, address2, city, state, zipcode
   };
 
+  // if (req.file) {
+  //   profileData.profilePic = req.file.filename; // store the filename
+  // }
   if (req.file) {
-    profileData.profilePic = req.file.filename; // store the filename
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    profileData.profilePic = `${baseUrl}/uploads/profile-pics/${req.file.filename}`;
   }
+  
+  
 
   try {
     let profile = await Profile.findOne({ userId: req.user.id });

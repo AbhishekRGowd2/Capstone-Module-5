@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import pic from '../assets/images/OIP.jpeg';
+import appointmentService from '../services/appointmentServices';
 
 const GetAppointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -14,25 +15,21 @@ const GetAppointments = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/appointments', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const res = await appointmentService.getAppointments(token);
         const data = res.data || [];
+  
         setAppointments(data);
         setFilteredAppointments(data);
-
-        // Extract unique years from appointments
+  
         const uniqueYears = [
           ...new Set(data.map(appt => new Date(appt.datetime).getFullYear()))
         ];
-        setYears(uniqueYears.sort((a, b) => b - a)); // descending
+        setYears(uniqueYears.sort((a, b) => b - a));
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
     };
-
+  
     fetchAppointments();
   }, [token]);
 

@@ -1,10 +1,13 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import Signup from '../pages/Signup'; // adjust path as needed
-import axios from 'axios';
+import Signup from '../pages/Signup';
 import { toast } from 'react-toastify';
+import authService from '../services/authServices';
 
-jest.mock('axios');
+jest.mock('../services/authServices', () => ({
+  signup: jest.fn()
+}));
+
 jest.mock('react-toastify', () => ({
   toast: {
     success: jest.fn(),
@@ -14,30 +17,19 @@ jest.mock('react-toastify', () => ({
 
 describe('Signup Component', () => {
   test('fills out form and submits successfully', async () => {
-    axios.post.mockResolvedValueOnce({ data: { message: 'Signup successful' } });
+    authService.signup.mockResolvedValueOnce({ data: { message: 'Signup successful' } });
 
     render(<Signup />);
 
-    // Fill out form inputs
-    fireEvent.change(screen.getByPlaceholderText(/Name/i), {
-      target: { name: 'name', value: 'John Doe' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Email/i), {
-      target: { name: 'email', value: 'john@example.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Contact Number/i), {
-      target: { name: 'contactNumber', value: '1234567890' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Password/i), {
-      target: { name: 'password', value: 'secret123' },
-    });
+    fireEvent.change(screen.getByPlaceholderText(/Name/i), { target: { name: 'name', value: 'John Doe' } });
+    fireEvent.change(screen.getByPlaceholderText(/Email/i), { target: { name: 'email', value: 'john@example.com' } });
+    fireEvent.change(screen.getByPlaceholderText(/Contact Number/i), { target: { name: 'contactNumber', value: '1234567890' } });
+    fireEvent.change(screen.getByPlaceholderText(/Password/i), { target: { name: 'password', value: 'secret123' } });
 
-    // Submit form
     fireEvent.click(screen.getByText(/Register/i));
 
-    // Wait for axios call and toast
     await waitFor(() => {
-      expect(axios.post).toHaveBeenCalledWith('http://localhost:5000/auth/signup', {
+      expect(authService.signup).toHaveBeenCalledWith({
         name: 'John Doe',
         email: 'john@example.com',
         contactNumber: '1234567890',
@@ -48,24 +40,16 @@ describe('Signup Component', () => {
   });
 
   test('shows error toast on signup failure', async () => {
-    axios.post.mockRejectedValueOnce({
+    authService.signup.mockRejectedValueOnce({
       response: { data: { message: 'Email already exists' } }
     });
 
     render(<Signup />);
 
-    fireEvent.change(screen.getByPlaceholderText(/Name/i), {
-      target: { name: 'name', value: 'Jane Doe' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Email/i), {
-      target: { name: 'email', value: 'jane@example.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Contact Number/i), {
-      target: { name: 'contactNumber', value: '1234567890' },
-    });
-    fireEvent.change(screen.getByPlaceholderText(/Password/i), {
-      target: { name: 'password', value: 'mypassword' },
-    });
+    fireEvent.change(screen.getByPlaceholderText(/Name/i), { target: { name: 'name', value: 'Jane Doe' } });
+    fireEvent.change(screen.getByPlaceholderText(/Email/i), { target: { name: 'email', value: 'jane@example.com' } });
+    fireEvent.change(screen.getByPlaceholderText(/Contact Number/i), { target: { name: 'contactNumber', value: '1234567890' } });
+    fireEvent.change(screen.getByPlaceholderText(/Password/i), { target: { name: 'password', value: 'mypassword' } });
 
     fireEvent.click(screen.getByText(/Register/i));
 

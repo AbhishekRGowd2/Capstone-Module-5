@@ -12,6 +12,18 @@ code {
     monospace;
 }
 
+.slick-slider {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.slick-slide {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  box-sizing: border-box;
+}
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

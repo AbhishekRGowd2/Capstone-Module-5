@@ -3,18 +3,22 @@ const mongoose = require('mongoose');
 const app = require('../app');
 const Service = require('../models/Services');
 
+// Connect to the database before any tests run
 beforeAll(async () => {
-  await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/testdb', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  try {
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/testdb', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+  } catch (err) {
+    console.error('❌ Failed to connect to MongoDB', err);
+  }
 });
 
+// Clean and seed the database before each test
 beforeEach(async () => {
-  // Clear previous data
-  await Service.deleteMany({});
+  await Service.deleteMany();
 
-  // Insert sample services with all required fields
   await Service.insertMany([
     {
       service: 'General Consultation',
@@ -33,21 +37,23 @@ beforeEach(async () => {
   ]);
 });
 
+// Disconnect after all tests are done
 afterAll(async () => {
-  await Service.deleteMany({});
+  await Service.deleteMany(); // optional
   await mongoose.connection.close();
 });
 
 describe('GET /api/services', () => {
-  it('should return all services', async () => {
+  it('should return all services with required fields', async () => {
     const res = await request(app).get('/api/services');
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
     expect(res.body.length).toBeGreaterThanOrEqual(2);
 
-    // Check first item has required fields
-    expect(res.body[0]).toHaveProperty('service');
-    expect(res.body[0]).toHaveProperty('serviceImagePath');
+    res.body.forEach((item) => {
+      expect(item).toHaveProperty('service');
+      expect(item).toHaveProperty('serviceImagePath');
+    });
   });
 });

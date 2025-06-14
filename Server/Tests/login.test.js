@@ -2,7 +2,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const app = require('../app'); // ✅ server.js includes all routes
-const User = require('../models/user');
+const User = require('../models/User');
 
 const testEmail = 'testlogin@example.com';
 const testPassword = 'password123';

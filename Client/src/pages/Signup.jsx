@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import authService from '../services/authServices';
 
 
 const Signup = () => {
@@ -8,10 +9,11 @@ const Signup = () => {
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      const response = await axios.post('http://localhost:5000/auth/signup', form);
+      const response = await authService.signup(form);
       console.log("Signup successful:", response.data);
       toast.success("Signup successful");
     } catch (err) {

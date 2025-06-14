@@ -2,21 +2,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import profileService from '../services/profileServices';
+import profileEndpoint from '../endpoints/profileEndpoint';
 
 const PatientDashboard = () => {
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token"); // if using token auth
 
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`, // if required
-          },
-        });
+        const res = await profileService.getProfile(token);
         setProfile(res.data);
       } catch (err) {
         console.error('Error fetching profile:', err);

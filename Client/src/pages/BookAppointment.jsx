@@ -27,7 +27,7 @@ const BookAppointment = () => {
       department: Yup.string().required('Please select a department'),
       comments: Yup.string().required('Comments are required'),
     }),
-  
+
     onSubmit: async (values, { resetForm }) => {
       if (!reportFile) {
         setReportError("Report file is required");
@@ -35,13 +35,13 @@ const BookAppointment = () => {
       } else {
         setReportError('');
       }
-  
+
       const form = new FormData();
       form.append('datetime', values.dateTime);
       form.append('department', values.department);
       form.append('comments', values.comments);
       form.append('report', reportFile);
-  
+
       try {
         const res = await appointmentService.bookAppointment(form, token);
         toast.success(res.data.message || 'Appointment booked');
@@ -54,7 +54,7 @@ const BookAppointment = () => {
       }
     }
   });
-  
+
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto mt-10" >
       <h2 className="text-3xl font-semibold text-center text-[#6a1b9a] mb-6">
@@ -132,6 +132,35 @@ const BookAppointment = () => {
            {reportError && (
             <p className="text-red-600 text-sm mt-1">{reportError}</p>
           )} */}
+          {reportFile && (
+            <div className="mt-2">
+              <div className="text-sm text-gray-600">Selected: {reportFile.name}</div>
+
+              {reportFile.type.startsWith('image/') && (
+                <img
+                  src={URL.createObjectURL(reportFile)}
+                  alt="Report Preview"
+                  className="mt-2 w-40 h-40 object-cover rounded border"
+                />
+              )}
+
+              {reportFile.type === 'application/pdf' && (
+                <a
+                  href={URL.createObjectURL(reportFile)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 block text-blue-600 underline"
+                >
+                  Preview PDF
+                </a>
+              )}
+            </div>
+          )}
+
+          {reportError && (
+            <p className="text-red-600 text-sm mt-1">{reportError}</p>
+          )}
+
 
         </div>
 

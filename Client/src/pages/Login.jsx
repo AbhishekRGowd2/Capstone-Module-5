@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../Redux/authSlice';
 import { useNavigate } from 'react-router-dom';
+import authService from '../services/authServices';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -18,13 +19,10 @@ const Login = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
-
+  
     try {
-      console.log(process.env.REACT_APP_API_BASE_URL);
-      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, form, {
-        withCredentials: true
-      });
-
+      const res = await authService.login(form);
+  
       dispatch(loginSuccess(res.data));
       alert('Login successful!');
       navigate('/dashboard');

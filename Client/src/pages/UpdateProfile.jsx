@@ -4,6 +4,9 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../Redux/authSlice';
+import authService from '../services/authServices';
+import profileService from '../services/profileServices';
+
 
 const UpdateProfile = () => {
   const user = useSelector(state => state.auth.user) || localStorage.getItem("user");
@@ -46,49 +49,39 @@ const UpdateProfile = () => {
       if (profilePic) {
         formPayload.append("profilePic", profilePic);
       }
-
-      const profileRes = await fetch("http://localhost:5000/api/profile", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formPayload,
-      });
-
-      const profileData = await profileRes.json();
-
-      if (!profileRes.ok) {
-        return alert("Profile error: " + profileData.message);
-      }
-
-      // 👉 Now update the User collection as well
-      const userRes = await fetch("http://localhost:5000/auth/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          name: `${values.firstName} ${values.lastName}`,
-          email: values.email,
-        }),
-
-      });
-
-      const userData = await userRes.json();
-
-      if (!userRes.ok) {
-        return alert("User update error: " + userData.message);
-      }
-
+  
+      // 🔁 Update Profile
+      const profileRes = await profileService.updateProfile(formPayload, token);
+      const profileData = profileRes.data;
+  
+      // 🔁 Update User Info (name + email)
+      const userRes = await authService.updateUser({
+        name: `${values.firstName} ${values.lastName}`,
+        email: values.email,
+      }, token);
+      const userData = userRes.data;
+  
+      // ✅ Final updates
       alert("Profile and user info updated successfully!");
       localStorage.setItem("user", JSON.stringify(userData));
       dispatch(loginSuccess({ user: userData, token }));
-      resetForm(); // Clear the Formik form
+      resetForm();
       setProfilePic(null);
+  
     } catch (err) {
       console.error(err);
-      alert("Something went wrong. Please try again.");
+      const message = err.response?.data?.message;
+      if (message?.includes("Profile")) {
+        alert(`Profile error: ${message}`);
+      } else if (message?.includes("User")) {
+        alert(`User error: ${message}`);
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
     }
+    
   };
+  
 
   const fields = [
     { label: "First Name", type: "text", name: "firstName" },

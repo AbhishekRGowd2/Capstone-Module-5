@@ -100,19 +100,19 @@ const Layout = () => {
   };
 
   return (
-    // <div className="min-h-screen flex flex-col">
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
+    <div className="min-h-screen flex flex-col">
+      {/* <div className="min-h-screen flex flex-col overflow-x-hidden"> */}
       {/* Navbar */}
       <div className="bg-[#6a1b9a] flex justify-between items-center p-4 text-white relative z-10">
         <div className="flex items-center gap-3">
-          {/* <button
+          <button
             onClick={toggleSidebar}
             className="text-white"
             aria-label="Toggle sidebar menu"
           >
             <Menu size={28} />
-          </button> */}
-          {isMobile && (
+          </button>
+          {/* {isMobile && (
             <button
               onClick={toggleSidebar}
               className="text-white"
@@ -120,7 +120,7 @@ const Layout = () => {
             >
               <Menu size={28} />
             </button>
-          )}
+          )} */}
 
 
           <div className="text-xl font-semibold">Patient System</div>
@@ -135,15 +135,16 @@ const Layout = () => {
 
       <div className="flex flex-1">
         {/* Sidebar */}
-        {/* <div className={`bg-gray-100 p-4 space-y-16 w-64 transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden'}`}> */}
-        <div className={`bg-gray-100 p-4 space-y-16 w-64 transition-all duration-300 ${isMobile ? (sidebarOpen ? 'block' : 'hidden') : 'block'}`}>
+        <div className={`bg-gray-100 p-4 space-y-16 w-64 transition-all duration-300 ${sidebarOpen ? 'block' : 'hidden'}`}>
+          {/* <div className={`bg-gray-100 p-4 space-y-16 w-64 transition-all duration-300 ${isMobile ? (sidebarOpen ? 'block' : 'hidden') : 'block'}`}> */}
           <div className="text-center relative group">
             <div className="relative w-24 h-24 mx-auto">
               <img
-                src={profilePic ? `${BASE_URL}/uploads/profile-pics/${profilePic}` : 'https://via.placeholder.com/100'}
+                src={`${BASE_URL}/uploads/profile-pics/${profilePic}` || 'https://via.placeholder.com/100'}
                 alt="Profile"
                 className="rounded-full w-24 h-24 object-cover border-2 border-[#6a1b9a]"
               />
+
               <button
                 onClick={() => setShowEdit(!showEdit)}
                 className="absolute bottom-1 right-1 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
@@ -216,7 +217,7 @@ const Layout = () => {
               Profile Settings
             </Link>
 
-            {isMobile && (
+            {/* {isMobile && (
               <div className="space-y-2">
                 <Link to="/get-services" className="block p-2 bg-purple-200 rounded text-center">
                   Services
@@ -228,7 +229,7 @@ const Layout = () => {
                   My Appointments
                 </Link>
               </div>
-            )}
+            )} */}
 
 
             <button

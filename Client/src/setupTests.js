@@ -5,6 +5,7 @@
 import '@testing-library/jest-dom';
 // src/setupTests.js
 console.log('setupTests.js loaded');
+global.alert = jest.fn();
 Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: jest.fn().mockImplementation(query => ({

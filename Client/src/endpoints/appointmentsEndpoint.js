@@ -1,5 +1,6 @@
 const appointmentEndpoint = {
-    bookAppointment: '/appointments',
+    bookAppointment: '/api/appointments',
+    getAppointments: '/api/appointments',
   };
   
   export default appointmentEndpoint;

@@ -3,7 +3,7 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../app'); // full app with routes and auth middleware
 const Profile = require('../models/Profile');
-const User = require('../models/user');
+const User = require('../models/User');
 
 let token;
 const testUser = {
@@ -13,24 +13,28 @@ const testUser = {
 
 beforeAll(async () => {
   process.env.JWT_SECRET = 'testsecret';
+
   await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/testdb', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
 
-  // Create test user
   await User.deleteMany({ email: testUser.email });
+
   const bcrypt = require('bcryptjs');
   const hashedPassword = await bcrypt.hash(testUser.password, 10);
-  const user = await User.create({ email: testUser.email, password: hashedPassword });
+  const createdUser = await User.create({ email: testUser.email, password: hashedPassword });
 
-  // Login to get token
   const res = await request(app)
     .post('/auth/login')
     .send({ email: testUser.email, password: testUser.password });
 
+  console.log("Login Response", res.body);
+
   token = res.body.token;
+  if (!token) throw new Error("Login did not return a token");
 });
+
 
 afterAll(async () => {
   await User.deleteMany({ email: testUser.email });
