@@ -140,7 +140,7 @@ const Layout = () => {
           <div className="text-center relative group">
             <div className="relative w-24 h-24 mx-auto">
               <img
-                src={`${BASE_URL}/uploads/profile-pics/${profilePic}` || 'https://via.placeholder.com/100'}
+                src={`${profilePic}` || 'https://via.placeholder.com/100'}
                 alt="Profile"
                 className="rounded-full w-24 h-24 object-cover border-2 border-[#6a1b9a]"
               />
