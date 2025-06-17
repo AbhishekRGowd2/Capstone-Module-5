@@ -18,6 +18,19 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>🩺 MediEase Backend is Running</h1>
+    <p>Welcome to the MediEase API. Here are some useful endpoints:</p>
+    <ul>
+      <li><a href="/api/appointments">/api/appointments</a> - View all appointments (GET)</li>
+      <li><a href="/api/services">/api/services</a> - View all services (GET)</li>
+      <li><a href="/api-docs">/api-docs</a> - API Documentation (Swagger or similar)</li>
+    </ul>
+  `);
+});
+
+
 // Mount all routes used in server.js
 app.use('/api', appointmentRoutes);
 app.use('/api', profileRoutes);
